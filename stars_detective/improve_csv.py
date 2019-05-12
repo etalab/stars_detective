@@ -10,7 +10,11 @@ from dask.diagnostics import ProgressBar
 import requests
 import re
 
-from . import logger
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
 ProgressBar().register()
 extension_re = re.compile(r'/[\w_\-]+\.(\w+)$')

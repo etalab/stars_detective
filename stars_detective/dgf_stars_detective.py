@@ -56,11 +56,6 @@ def two_star(datasets_df, resource_df):
     pass
 
 
-def check_no_resources_datasets(resources_str):
-    import datetime
-    list_resources = eval(resources_str)
-    return len(list_resources)
-
 if __name__ == '__main__':
     parser = argopt(__doc__).parse_args()
     datasets_file_path = parser.d
