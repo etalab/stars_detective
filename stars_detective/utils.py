@@ -130,4 +130,4 @@ def try_toget_format_wrap(resources_df:pd.DataFrame, n_cores=5):
 
     res = resources_dd.map_partitions(lambda df: df.apply(lambda x: try_to_get_format(x), axis=1), meta=("result", str)).compute(scheduler="processes")
     resources_df["maybe_format"] = res
-    resources_df.to_csv("input_data/resources_maybe_formats.csv", sep=";")
+    resources_df.to_csv("input_files/resources_maybe_formats.csv", sep=";")
