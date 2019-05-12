@@ -9,6 +9,7 @@ Usage:
 Arguments:
     <d>                                Datasets csv file path
     <r>                                Resources csv file path
+    --num_cores CORES                  Num cores [default:10:int]
 
 '''
 
@@ -16,10 +17,10 @@ Arguments:
 import pandas as pd
 from argopt import argopt
 
-from utils import check_license, check_online_availability, try_to_get_format, try_toget_format_wrap
+from utils import check_license, check_online_availability
 
 
-def one_star(datasets_df):
+def one_star(datasets_df, n_cores=10):
     """
     Check that the datasets/resources on datasets_df comply with the first level of the TBL 5-stars system:
 
@@ -34,15 +35,15 @@ def one_star(datasets_df):
     licenses_info, open_idx = check_license(datasets_df)
 
     # 2. Check resources are actually on the web
-    availability_info, available_idx = check_online_availability(datasets_df)
+    availability_info, available_idx = check_online_availability(datasets_df, n_cores=n_cores)
 
     # Intersect both conditions
     open_and_available_idx = open_idx.intersection(available_idx)
 
-    return open_and_available_idx
+    return open_and_available_idx, licenses_info.update(availability_info)
 
 
-def two_star(datasets_df):
+def two_star(datasets_df, resource_df):
     """
     Check that the datasets/resources on datasets_df comply with the second level of the TBL 5-stars system:
 
@@ -64,13 +65,14 @@ if __name__ == '__main__':
     parser = argopt(__doc__).parse_args()
     datasets_file_path = parser.d
     resources_folder_path = parser.r
+    n_cores = int(parser.num_cores)
 
-    datasets_df = pd.read_csv(datasets_file_path, sep=";")
+    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:]
+    num_all_datasets = len(datasets_df)
+
     resources_df = pd.read_csv(resources_folder_path, sep=";")
 
-    try_toget_format_wrap(resources_df)
-    # print(check_license(datasets_df, None))
-    datasets_df = datasets_df.loc[:20]
-    one_star_idx = one_star(datasets_df)
+
+    one_star_idx, one_star_info = one_star(datasets_df, n_cores=n_cores)
 
 

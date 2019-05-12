@@ -2,6 +2,8 @@ import re
 
 import requests
 
+from stars_detective import logger
+
 __author__ = 'Pavel Soriano'
 __mail__ = 'sorianopavel@gmail.com'
 
@@ -56,43 +58,50 @@ def clean_formats(dataset_series):
     pass
 
 
-def check_url_works(resources_str):
+def check_url_works(resources_series:pd.Series):
+    resources_lst = eval(resources_series)
 
-    resources_lst = eval(resources_str)
     for resource in resources_lst:
+        if "extras" in resource:
+            if "check:available" in resource["extras"]:
+                if resource["extras"]["check:available"]:
+                    return True
         if "url" not in resource:
             continue
         url = resource["url"]
         try:
             r = requests.head(url, allow_redirects=True)
-        except:
+            if r.status_code == requests.codes.ok:
+                return True
+        except Exception as e:
+            logger.debug("Failed checking {}".format(url))
+            logger.error(e)
             continue
-        if r.status_code == requests.codes.ok:
-            return True
     return False
 
 
-def check_online_availability(datasets_df):
+def check_online_availability(datasets_df, n_cores=10):
     result_dict = {}
 
-    no_reseources_idx = datasets_df.index[(datasets_df.resources.isnull()) | (datasets_df.resources.isin(["[]"]))]
-    with_resources_idx = datasets_df.index[~datasets_df.index.isin(no_reseources_idx)]
+    no_resources_idx = datasets_df.index[(datasets_df.resources.isnull()) | (datasets_df.resources.isin(["[]"]))]
+    with_resources_idx = datasets_df.index[~datasets_df.index.isin(no_resources_idx)]
 
-    result_dict["no_resources"] = len(no_reseources_idx)
+    result_dict["no_resources"] = len(no_resources_idx)
     result_dict["with_resources"] = len(with_resources_idx)
 
-    result_dict["pct_no_resources"] = 100 * (len(no_reseources_idx) / len(datasets_df))
+    result_dict["pct_no_resources"] = 100 * (len(no_resources_idx) / len(datasets_df))
     result_dict["pct_with_resources"] = 100 - result_dict["pct_no_resources"]
 
     with_resources_df = datasets_df.loc[with_resources_idx]
 
-    with_resources_dd = dd.from_pandas(with_resources_df, npartitions=3)
+    with_resources_dd = dd.from_pandas(with_resources_df, npartitions=n_cores)
 
-    res = with_resources_dd.map_partitions(lambda df: df.apply(lambda x: check_url_works(x.resources), axis=1), meta=("result", bool)).compute(scheduler="processes")
+    res = with_resources_dd.map_partitions(lambda df: df.apply(lambda x: check_url_works(x.resources), axis=1),
+                                           meta=("result", bool)).compute(scheduler="processes")
     with_resources_df["available"] = res
-    del with_resources_dd
+    # del with_resources_dd
 
-    available_idx = with_resources_df.index[with_resources_df.available is True]
+    available_idx = with_resources_df.index[with_resources_df.available == True]
 
     result_dict["available"] = len(available_idx)
     result_dict["not_available"] = len(datasets_df) - len(available_idx)
@@ -101,33 +110,6 @@ def check_online_availability(datasets_df):
 
     return result_dict, available_idx
 
-extension_re = re.compile(r'/[\w_\-]+\.(\w+)$')
 
 
-def try_to_get_format(dataset):
-    dataset = dataset.fillna("")
-    if dataset.format != "":
-        return dataset.format
-    # Try to get format from url
-    if dataset.url:
-        print("Trying regex")
-        matcho = extension_re.findall(dataset.url)
-        if matcho:
-            return matcho[-1]
-    # Go to the url and try to get it from the header
-        try:
-            print("Trying download")
-            r = requests.head(dataset.url, allow_redirects=True)
-            extension = r.headers["Content-Type"].split("/")[-1]
-            return extension
-        except:
-            return ""
-    return ""
 
-
-def try_toget_format_wrap(resources_df:pd.DataFrame, n_cores=5):
-    resources_dd = dd.from_pandas(resources_df, npartitions=n_cores)
-
-    res = resources_dd.map_partitions(lambda df: df.apply(lambda x: try_to_get_format(x), axis=1), meta=("result", str)).compute(scheduler="processes")
-    resources_df["maybe_format"] = res
-    resources_df.to_csv("input_files/resources_maybe_formats.csv", sep=";")
