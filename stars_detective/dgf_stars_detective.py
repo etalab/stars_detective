@@ -16,7 +16,7 @@ Arguments:
 import pandas as pd
 from argopt import argopt
 
-from stars_detective.utils import check_license, check_online_availability, try_to_get_format, try_toget_format_wrap
+from utils import check_license, check_online_availability, try_to_get_format, try_toget_format_wrap
 
 
 def one_star(datasets_df):
