@@ -110,5 +110,5 @@ if __name__ == '__main__':
 
     # Try to get the format for the zip files
     resources_df = get_format_from_zip(resources_df, n_cores=n_cores, n_sample=200)
-    # resources_df.to_csv("input_files/resources_maybe_formats.csv", sep=";")
+    resources_df.to_csv("input_files/resources_maybe_formats.csv", sep=";")
     pass
