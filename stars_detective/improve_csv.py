@@ -10,7 +10,7 @@ from dask.diagnostics import ProgressBar
 import requests
 import re
 
-from stars_detective import logger
+from . import logger
 
 ProgressBar().register()
 extension_re = re.compile(r'/[\w_\-]+\.(\w+)$')
