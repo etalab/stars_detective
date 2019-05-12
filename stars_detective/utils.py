@@ -1,18 +1,20 @@
-import re
+from collections import Counter
 
+import dask.dataframe as dd
+import pandas as pd
 import requests
+from dask.diagnostics import ProgressBar
 
 from stars_detective import logger
-
-__author__ = 'Pavel Soriano'
-__mail__ = 'sorianopavel@gmail.com'
-
-from collections import Counter
 import datetime
-import pandas as pd
-import dask.dataframe as dd
-from dask.diagnostics import ProgressBar
+# from dask.distributed import Client
+# client = Client()
+
+
 ProgressBar().register()
+import numpy as np
+
+RESOURCES_DF = None
 
 
 def check_license(datasets_df):
@@ -53,12 +55,82 @@ def check_license(datasets_df):
     return result_dict, open_idx
 
 
-def clean_formats(dataset_series):
+def check_format(resources_series, list_formats, list_is_negative=True):
+    if not isinstance(resources_series, str) and np.isnan(resources_series):
+        return False
+    resources_lst = eval(resources_series)
+    for resource in resources_lst:
+        res_id = resource["_id"]
+        try:
+            if list_is_negative:
+                if RESOURCES_DF.loc[RESOURCES_DF["_id"] == res_id, "format"].item() not in list_formats:
+                    return True
+                else:
+                    continue
+            else:  # list is positive (we are looking for formats within list_formats)
+                if RESOURCES_DF.loc[RESOURCES_DF["_id"] == res_id, "format"].item() in list_formats:
+                    return True
 
-    pass
+
+        except:
+            continue
+    return False
 
 
-def check_url_works(resources_series:pd.Series):
+def check_non_proprietary(datasets_df, resources_df, non_desired_formats, n_cores=10):
+    global RESOURCES_DF
+    RESOURCES_DF = resources_df
+
+    datasets_dd = dd.from_pandas(datasets_df, npartitions=n_cores)
+
+    res = datasets_dd.map_partitions(
+        lambda df: df.apply(lambda x: check_format(x.resources, non_desired_formats), axis=1),
+        meta=("result", bool)).compute(scheduler="multiprocessing")
+    non_proprietary_idx = res.index[res == True]
+    return {"num_non_proprietary": len(non_proprietary_idx)}, non_proprietary_idx
+
+
+def check_structured(datasets_df, resources_df, non_desired_formats, n_cores=10):
+    global RESOURCES_DF
+    RESOURCES_DF = resources_df
+
+    datasets_dd = dd.from_pandas(datasets_df, npartitions=n_cores)
+
+    res = datasets_dd.map_partitions(
+        lambda df: df.apply(lambda x: check_format(x.resources, non_desired_formats), axis=1),
+        meta=("result", bool)).compute(scheduler="multiprocessing")
+    structured_idx = res.index[res == True]
+    return {"num_structured": len(structured_idx)}, structured_idx
+
+
+def check_structured(datasets_df, resources_df, non_desired_formats, n_cores=10):
+    global RESOURCES_DF
+    RESOURCES_DF = resources_df
+
+    datasets_dd = dd.from_pandas(datasets_df, npartitions=n_cores)
+
+    res = datasets_dd.map_partitions(
+        lambda df: df.apply(lambda x: check_format(x.resources, non_desired_formats), axis=1),
+        meta=("result", bool)).compute(scheduler="multiprocessing")
+    structured_idx = res.index[res == True]
+    return {"num_structured": len(structured_idx)}, structured_idx
+
+
+def check_semantic(datasets_df, resources_df, semantic_formats, n_cores=20):
+    global RESOURCES_DF
+    RESOURCES_DF = resources_df
+
+    datasets_dd = dd.from_pandas(datasets_df, npartitions=n_cores)
+
+    res = datasets_dd.map_partitions(lambda df: df.apply(lambda x: check_format(x.resources, semantic_formats,
+                                                                                list_is_negative=False), axis=1),
+                                     meta=("result", bool)).compute(scheduler="multiprocessing")
+    semantic_idx = res.index[res == True]
+    return {"num_semantic": len(semantic_idx)}, semantic_idx
+
+
+
+def check_url_works(resources_series: pd.Series):
     resources_lst = eval(resources_series)
 
     for resource in resources_lst:
@@ -70,7 +142,7 @@ def check_url_works(resources_series:pd.Series):
             continue
         url = resource["url"]
         try:
-            r = requests.head(url, allow_redirects=True)
+            r = requests.head(url, allow_redirects=True, timeout=5)
             if r.status_code == requests.codes.ok:
                 return True
         except Exception as e:
@@ -109,7 +181,3 @@ def check_online_availability(datasets_df, n_cores=10):
     result_dict["pct_not_available"] = 100 - result_dict["pct_available"]
 
     return result_dict, available_idx
-
-
-
-
