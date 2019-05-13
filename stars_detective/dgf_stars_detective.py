@@ -171,8 +171,8 @@ if __name__ == '__main__':
 
     four_stars_idx, four_star_info = four_stars(datasets_df.loc[three_stars_idx], resources_df, n_cores=n_cores)
 
-    four_stars_idx = pd.read_csv("output_files/four_star_indices.csv", header=None)
-    four_stars_idx.index = four_stars_idx[0].values
+    # four_stars_idx = pd.read_csv("output_files/four_star_indices.csv", header=None)
+    # four_stars_idx.index = four_stars_idx[0].values
 
     five_stars_idx = five_stars(datasets_df.loc[four_stars_idx], resources_df, n_cores=n_cores)
 
