@@ -47,8 +47,8 @@ def one_star(datasets_df, n_cores=10):
 
     # Save found indices
     open_and_available_idx.to_series().to_csv("output_files/one_star_indices.csv", header=False)
-
-    return open_and_available_idx, licenses_info.update(availability_info)
+    licenses_info.update(availability_info)
+    return open_and_available_idx, licenses_info
 
 
 def two_stars(datasets_df, resources_df, n_cores=20):
@@ -77,7 +77,8 @@ def two_stars(datasets_df, resources_df, n_cores=20):
     info_dict, structured_idx = check_structured(datasets_df, resources_df, non_machine_readable, n_cores=n_cores)
 
     structured_idx.to_series().to_csv("output_files/two_star_indices.csv", header=False)
-    return structured_idx, results_dict.update(info_dict)
+    results_dict.update(info_dict)
+    return structured_idx, results_dict
 
 
 def three_stars(datasets_df, resources_df, n_cores=20):
@@ -136,7 +137,7 @@ if __name__ == '__main__':
     resources_folder_path = parser.r
     n_cores = int(parser.num_cores)
 
-    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:]
+    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:20]
     num_all_datasets = len(datasets_df)
 
     resources_df = pd.read_csv(resources_folder_path, sep=";")
