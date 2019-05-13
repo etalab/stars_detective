@@ -63,8 +63,9 @@ This one is harder because of the multiple types of semantic docs there are.
 
 ## Results
 
-| One star:        | 0.75     |
+| Level        | pct (\*100)     |
 |------------------|----------|
+| One star pct:    | 0.75     |
 | Two stars pct:   | 0.73     |
 | Three stars pct: | 0.71     |
 | Four stars pct:  | 0.000281 |
