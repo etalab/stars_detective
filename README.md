@@ -57,7 +57,7 @@ We look for these kind of files. We do not consider `xml` nor `html` files as em
 
 >"use URIs to denote things, so that people can point at your stuff"
 
-Among those semantic files, we look within them for URIs that reference external entities.
+Among those semantic files in the level \*\*\*, we look within them for URIs that reference external entities.
 This one is harder because of the multiple types of semantic docs there are. 
 
 
