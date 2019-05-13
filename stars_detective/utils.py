@@ -105,19 +105,6 @@ def check_structured(datasets_df, resources_df, non_desired_formats, n_cores=10)
     return {"num_structured": len(structured_idx)}, structured_idx
 
 
-def check_structured(datasets_df, resources_df, non_desired_formats, n_cores=10):
-    global RESOURCES_DF
-    RESOURCES_DF = resources_df
-
-    datasets_dd = dd.from_pandas(datasets_df, npartitions=n_cores)
-
-    res = datasets_dd.map_partitions(
-        lambda df: df.apply(lambda x: check_format(x.resources, non_desired_formats), axis=1),
-        meta=("result", bool)).compute(scheduler="multiprocessing")
-    structured_idx = res.index[res == True]
-    return {"num_structured": len(structured_idx)}, structured_idx
-
-
 def check_semantic(datasets_df, resources_df, semantic_formats, n_cores=20):
     global RESOURCES_DF
     RESOURCES_DF = resources_df
@@ -126,10 +113,9 @@ def check_semantic(datasets_df, resources_df, semantic_formats, n_cores=20):
 
     res = datasets_dd.map_partitions(lambda df: df.apply(lambda x: check_format(x.resources, semantic_formats,
                                                                                 list_is_negative=False), axis=1),
-                                     meta=("result", bool)).compute(scheduler="single-threaded")
+                                     meta=("result", bool)).compute(scheduler="multiprocessing")
     semantic_idx = res.index[res == True]
     return {"num_semantic": len(semantic_idx)}, semantic_idx
-
 
 
 def check_url_works(resources_series: pd.Series):
@@ -139,7 +125,12 @@ def check_url_works(resources_series: pd.Series):
         if "extras" in resource:
             if "check:available" in resource["extras"]:
                 if resource["extras"]["check:available"]:
+                    logger.info("Dataset {0} already checked as available".format(resource["_id"]))
                     return True
+                else:
+                    logger.info("Dataset {0} already checked as not available".format(resource["_id"]))
+                    return False
+
         if "url" not in resource:
             continue
         url = resource["url"]
@@ -148,8 +139,8 @@ def check_url_works(resources_series: pd.Series):
             if r.status_code == requests.codes.ok:
                 return True
         except Exception as e:
-            logger.debug("Failed checking {}".format(url))
-            logger.error(e)
+            logger.info("Failed checking {0}, id {1}".format(url, resource["_id"]))
+            # logger.error(e)
             continue
     return False
 
@@ -171,7 +162,7 @@ def check_online_availability(datasets_df, n_cores=10):
     with_resources_dd = dd.from_pandas(with_resources_df, npartitions=n_cores)
 
     res = with_resources_dd.map_partitions(lambda df: df.apply(lambda x: check_url_works(x.resources), axis=1),
-                                           meta=("result", bool)).compute(scheduler="processes")
+                                           meta=("result", bool)).compute(scheduler="multiprocessing")
     with_resources_df["available"] = res
     # del with_resources_dd
 

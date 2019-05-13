@@ -141,13 +141,12 @@ if __name__ == '__main__':
 
     resources_df = pd.read_csv(resources_folder_path, sep=";")
 
-    # one_star_idx, one_star_info = one_star(datasets_df, n_cores=n_cores)
+    one_star_idx, one_star_info = one_star(datasets_df, n_cores=n_cores)
 
-    three_stars_idx = pd.read_csv("output_files/one_star_indices.csv")["2"]
 
-    # two_stars_idx, two_star_info = two_stars(datasets_df.loc[one_star_idx], resources_df, n_cores=n_cores)
+    two_stars_idx, two_star_info = two_stars(datasets_df.loc[one_star_idx], resources_df, n_cores=n_cores)
 
-    # three_stars_idx, three_star_info = three_stars(datasets_df.loc[two_stars_idx], resources_df, n_cores=n_cores)
+    three_stars_idx, three_star_info = three_stars(datasets_df.loc[two_stars_idx], resources_df, n_cores=n_cores)
 
     four_stars_idx, four_star_info = four_stars(datasets_df.loc[three_stars_idx], resources_df, n_cores=n_cores)
 
