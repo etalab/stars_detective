@@ -116,7 +116,7 @@ def four_stars(datasets_df, resources_df, n_cores=20):
     """
     Check that the datasets/resources on datasets_df comply with the fourth level of the TBL 5-stars system:
 
-    "use URIs to denote things, so that people can point at your stuff4"
+    "use URIs to denote things, so that people can point at your stuff"
 
     Considering the formats ttl, owx, owl, and rdf default 'semantic stuff'
     We need to check if the xml's, json's, and maybe the html's contain rdf stuff ??
@@ -180,4 +180,4 @@ if __name__ == '__main__':
     print("Two stars pct:", len(two_stars_idx) / num_all_datasets)
     print("Three stars pct:", len(three_stars_idx) / num_all_datasets)
     print("Four stars pct:", len(four_stars_idx) / num_all_datasets)
-    print("Four stars pct:", len(five_stars_idx) / num_all_datasets)
+    print("Five stars pct:", len(five_stars_idx) / num_all_datasets)
