@@ -46,7 +46,7 @@ def one_star(datasets_df, n_cores=10):
     open_and_available_idx: pd.Series = open_idx.intersection(available_idx)
 
     # Save found indices
-    open_and_available_idx.to_series().to_csv("output_files/one_star_indices.csv", header=False)
+    open_and_available_idx.to_series().to_csv("output_files/one_star_indices.csv", header=False, index=False)
     licenses_info.update(availability_info)
     return open_and_available_idx, licenses_info
 
@@ -76,7 +76,7 @@ def two_stars(datasets_df, resources_df, n_cores=20):
 
     info_dict, structured_idx = check_structured(datasets_df, resources_df, non_machine_readable, n_cores=n_cores)
 
-    structured_idx.to_series().to_csv("output_files/two_star_indices.csv", header=False)
+    structured_idx.to_series().to_csv("output_files/two_star_indices.csv", header=False, index=False)
     results_dict.update(info_dict)
     return structured_idx, results_dict
 
@@ -103,7 +103,7 @@ def three_stars(datasets_df, resources_df, n_cores=20):
 
     results_dict, non_proprietary_idx = check_non_proprietary(datasets_df, resources_df, proprietary_formats,
                                                               n_cores=n_cores)
-    non_proprietary_idx.to_series().to_csv("output_files/three_star_indices.csv", header=False)
+    non_proprietary_idx.to_series().to_csv("output_files/three_star_indices.csv", header=False, index=False)
 
     return non_proprietary_idx, results_dict
 
@@ -126,7 +126,7 @@ def four_stars(datasets_df, resources_df, n_cores=20):
 
     results_dict, semantic_idx = check_semantic(datasets_df, resources_df, semantic_formats, n_cores=n_cores)
 
-    semantic_idx.to_series().to_csv("output_files/four_star_indices.csv", header=False)
+    semantic_idx.to_series().to_csv("output_files/four_star_indices.csv", header=False, index=False)
 
     return semantic_idx, results_dict
 
