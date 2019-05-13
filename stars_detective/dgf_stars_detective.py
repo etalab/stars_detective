@@ -158,7 +158,7 @@ if __name__ == '__main__':
     resources_folder_path = parser.r
     n_cores = int(parser.num_cores)
 
-    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:]
+    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:20]
     num_all_datasets = len(datasets_df)
 
     resources_df = pd.read_csv(resources_folder_path, sep=";")
@@ -169,12 +169,12 @@ if __name__ == '__main__':
 
     three_stars_idx, three_star_info = three_stars(datasets_df.loc[two_stars_idx], resources_df, n_cores=n_cores)
 
-    four_stars_idx, four_star_info = four_stars(datasets_df.loc[three_stars_idx.index], resources_df, n_cores=n_cores)
+    four_stars_idx, four_star_info = four_stars(datasets_df.loc[three_stars_idx], resources_df, n_cores=n_cores)
 
     four_stars_idx = pd.read_csv("output_files/four_star_indices.csv", header=None)
     four_stars_idx.index = four_stars_idx[0].values
 
-    five_stars_idx = five_stars(datasets_df.loc[four_stars_idx.index], resources_df, n_cores=n_cores)
+    five_stars_idx = five_stars(datasets_df.loc[four_stars_idx], resources_df, n_cores=n_cores)
 
     print("One star pct:", len(one_star_idx) / num_all_datasets, str(one_star_info))
     print("Two stars pct:", len(two_stars_idx) / num_all_datasets)
