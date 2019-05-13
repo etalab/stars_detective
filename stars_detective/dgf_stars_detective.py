@@ -158,7 +158,7 @@ if __name__ == '__main__':
     resources_folder_path = parser.r
     n_cores = int(parser.num_cores)
 
-    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:20]
+    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:]
     num_all_datasets = len(datasets_df)
 
     resources_df = pd.read_csv(resources_folder_path, sep=";")
