@@ -22,7 +22,7 @@ from collections import Counter
 import pandas as pd
 from argopt import argopt
 
-from utils import check_license, check_online_availability, check_structured, check_non_proprietary, check_semantic
+from stars_detective.utils import check_license, check_online_availability, check_structured, check_non_proprietary, check_semantic
 
 
 def one_star(datasets_df, n_cores=10):
