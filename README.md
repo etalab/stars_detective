@@ -1,5 +1,5 @@
 # stars_detective
-Script to determine the proportion of datasets that comply with the Tim Berners Lee 5-stars system of the open data portal data.gouiv.fr (dgf).
+Script to determine the proportion of datasets that comply with the [Tim Berners Lee 5-stars](https://5stardata.info/en/) system of the open data portal data.gouiv.fr (dgf).
 
 # How it is done ?
 We have two files where we the details of datasets and their corresponding resources are stored (`datasets.csv` and `resources.csv`, respectively). There are **39013** datasets in total. There are **199818** resources. A dataset can have more than one resource.
