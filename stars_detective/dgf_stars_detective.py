@@ -76,7 +76,7 @@ def two_stars(datasets_df, resources_df, n_cores=20):
     results_dict["format_distribution"] = list(sorted(Counter(resources_df.format).items(), key=lambda x: x[1],
                                                       reverse=True)[:20])
 
-    non_machine_readable = ["pdf", "image", "bin"]
+    non_machine_readable = ["pdf", "image", "bin", "doc"]
 
     info_dict, structured_idx = check_structured(datasets_df, resources_df, non_machine_readable, n_cores=n_cores)
 
