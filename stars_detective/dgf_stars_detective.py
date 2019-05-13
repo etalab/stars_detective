@@ -20,9 +20,13 @@ Arguments:
 from collections import Counter
 
 import pandas as pd
+import rdflib
 from argopt import argopt
+import datetime
 
-from stars_detective.utils import check_license, check_online_availability, check_structured, check_non_proprietary, check_semantic
+from stars_detective import logger
+from stars_detective.utils import check_license, check_online_availability, check_structured, check_non_proprietary, \
+    check_semantic, check_semantic_context
 
 
 def one_star(datasets_df, n_cores=10):
@@ -76,7 +80,7 @@ def two_stars(datasets_df, resources_df, n_cores=20):
 
     info_dict, structured_idx = check_structured(datasets_df, resources_df, non_machine_readable, n_cores=n_cores)
 
-    structured_idx.to_series().to_csv("output_files/two_star_indices.csv", header=False, index=False)
+    structured_idx.to_series().to_csv("output_files/two_star_indices.csv", header=True, index=False)
     results_dict.update(info_dict)
     return structured_idx, results_dict
 
@@ -103,7 +107,7 @@ def three_stars(datasets_df, resources_df, n_cores=20):
 
     results_dict, non_proprietary_idx = check_non_proprietary(datasets_df, resources_df, proprietary_formats,
                                                               n_cores=n_cores)
-    non_proprietary_idx.to_series().to_csv("output_files/three_star_indices.csv", header=False, index=False)
+    non_proprietary_idx.to_series().to_csv("output_files/three_star_indices.csv", header=True, index=False)
 
     return non_proprietary_idx, results_dict
 
@@ -123,13 +127,30 @@ def four_stars(datasets_df, resources_df, n_cores=20):
     """
 
     semantic_formats = ["ttl", "owx", "owl", "rdf", "nq", "nt", "trig", "jsonld", "trdf", "rt", "rj", "trix"]
+    # semantic_formats = ["ttl", "owx", "owl"]
 
     results_dict, semantic_idx = check_semantic(datasets_df, resources_df, semantic_formats, n_cores=n_cores)
 
-    semantic_idx.to_series().to_csv("output_files/four_star_indices.csv", header=False, index=False)
+    semantic_idx.to_series().to_csv("output_files/four_star_indices.csv", header=True, index=False)
 
     return semantic_idx, results_dict
 
+
+def five_stars(datasets_df, resources_df, n_cores=20):
+    """
+    Check that the datasets/resources on datasets_df comply with the fifth level of the TBL 5-stars system:
+
+    "use URIs to denote things, so that people can point at your stuff"
+
+    We check the namespaces of the semantic files (see four_stars) and determine if they link or not to other things
+
+    :param datasets_df:
+    :param resources_csv:
+    :param n_cores
+    :return:
+    """
+    five_stars_idx = check_semantic_context(datasets_df, resources_df, n_cores=n_cores)
+    return five_stars_idx
 
 if __name__ == '__main__':
     parser = argopt(__doc__).parse_args()
@@ -137,21 +158,26 @@ if __name__ == '__main__':
     resources_folder_path = parser.r
     n_cores = int(parser.num_cores)
 
-    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:20]
+    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:]
     num_all_datasets = len(datasets_df)
 
     resources_df = pd.read_csv(resources_folder_path, sep=";")
 
     one_star_idx, one_star_info = one_star(datasets_df, n_cores=n_cores)
 
-
     two_stars_idx, two_star_info = two_stars(datasets_df.loc[one_star_idx], resources_df, n_cores=n_cores)
 
     three_stars_idx, three_star_info = three_stars(datasets_df.loc[two_stars_idx], resources_df, n_cores=n_cores)
 
-    four_stars_idx, four_star_info = four_stars(datasets_df.loc[three_stars_idx], resources_df, n_cores=n_cores)
+    four_stars_idx, four_star_info = four_stars(datasets_df.loc[three_stars_idx.index], resources_df, n_cores=n_cores)
+
+    four_stars_idx = pd.read_csv("output_files/four_star_indices.csv", header=None)
+    four_stars_idx.index = four_stars_idx[0].values
+
+    five_stars_idx = five_stars(datasets_df.loc[four_stars_idx.index], resources_df, n_cores=n_cores)
 
     print("One star pct:", len(one_star_idx) / num_all_datasets, str(one_star_info))
     print("Two stars pct:", len(two_stars_idx) / num_all_datasets)
     print("Three stars pct:", len(three_stars_idx) / num_all_datasets)
     print("Four stars pct:", len(four_stars_idx) / num_all_datasets)
+    print("Four stars pct:", len(five_stars_idx) / num_all_datasets)
