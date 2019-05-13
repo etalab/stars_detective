@@ -56,23 +56,25 @@ def check_license(datasets_df):
 
 
 def check_format(resources_series, list_formats, list_is_negative=True):
-    if not isinstance(resources_series, str) and np.isnan(resources_series):
+    if not isinstance(resources_series, str):
         return False
     resources_lst = eval(resources_series)
     for resource in resources_lst:
-        res_id = resource["_id"]
         try:
+            if "_id" not in resource:
+                continue
+            res_id = resource["_id"]
             if list_is_negative:
-                if RESOURCES_DF.loc[RESOURCES_DF["_id"] == res_id, "format"].item() not in list_formats:
+                if RESOURCES_DF.loc[RESOURCES_DF["_id"] == res_id, "format"].iloc[0] not in list_formats:
                     return True
                 else:
                     continue
             else:  # list is positive (we are looking for formats within list_formats)
-                if RESOURCES_DF.loc[RESOURCES_DF["_id"] == res_id, "format"].item() in list_formats:
+                if RESOURCES_DF.loc[RESOURCES_DF["_id"] == res_id, "format"].iloc[0] in list_formats:
                     return True
-
-
-        except:
+        except Exception as e:
+            logger.error(resources_series)
+            logger.error(e)
             continue
     return False
 
@@ -124,7 +126,7 @@ def check_semantic(datasets_df, resources_df, semantic_formats, n_cores=20):
 
     res = datasets_dd.map_partitions(lambda df: df.apply(lambda x: check_format(x.resources, semantic_formats,
                                                                                 list_is_negative=False), axis=1),
-                                     meta=("result", bool)).compute(scheduler="multiprocessing")
+                                     meta=("result", bool)).compute(scheduler="single-threaded")
     semantic_idx = res.index[res == True]
     return {"num_semantic": len(semantic_idx)}, semantic_idx
 
