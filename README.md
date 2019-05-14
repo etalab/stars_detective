@@ -7,7 +7,7 @@ We have two files where we the details of datasets and their corresponding resou
 ## Level *
 >"make your stuff available on the Web (whatever format) under an open license"
 
-We check that the datasets are assigned with an open licence and they are available on the internet.
+We check that the datasets are assigned with an open licence and that they are available on the internet.
 
 Among the existing licences in the datasets stored in dgf (see below) we check how many are `notspecified` or `nan`.
 ```python
@@ -28,6 +28,7 @@ Among the existing licences in the datasets stored in dgf (see below) we check h
 ## Level **
 
 >"make it available as structured data (e.g., Excel instead of image scan of a table)"
+
 From the available top 20 formats (these formats cover over 97% of the total number of **resources**, their frequency is the second value of each tuple):
 
 ```python
