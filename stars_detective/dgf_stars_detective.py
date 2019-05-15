@@ -150,7 +150,9 @@ def five_stars(datasets_df, resources_df, n_cores=20):
     :return:
     """
     five_stars_idx = check_semantic_context(datasets_df, resources_df, n_cores=n_cores)
-    return five_stars_idx
+    five_stars_idx.index = five_stars_idx
+
+    return five_stars_idx.index
 
 if __name__ == '__main__':
     parser = argopt(__doc__).parse_args()
@@ -159,7 +161,7 @@ if __name__ == '__main__':
     n_cores = int(parser.num_cores)
     dataset_stars = parser.dataset
 
-    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:20]
+    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:2000]
     num_all_datasets = len(datasets_df)
 
     resources_df = pd.read_csv(resources_folder_path, sep=";")
@@ -185,8 +187,8 @@ if __name__ == '__main__':
     star_dataset.to_csv(dataset_stars, header=True, index=False)
 
 
-    logger.info("One star pct:", len(one_star_idx) / num_all_datasets, str(one_star_info))
-    logger.info("Two stars pct:", len(two_stars_idx) / num_all_datasets)
-    logger.info("Three stars pct:", len(three_stars_idx) / num_all_datasets)
-    logger.info("Four stars pct:", len(four_stars_idx) / num_all_datasets)
-    logger.info("Five stars pct:", len(five_stars_idx) / num_all_datasets)
+    logger.info("One star pct: {0}".format(len(one_star_idx) / num_all_datasets, str(one_star_info)))
+    logger.info("Two stars pct:{}".format(len(two_stars_idx) / num_all_datasets))
+    logger.info("Three stars pct:{}".format(len(three_stars_idx) / num_all_datasets))
+    logger.info("Four stars pct:{}".format(len(four_stars_idx) / num_all_datasets))
+    logger.info("Five stars pct:{}".format(len(five_stars_idx) / num_all_datasets))

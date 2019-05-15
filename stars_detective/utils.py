@@ -105,7 +105,7 @@ def check_structured(datasets_df, resources_df, non_desired_formats, n_cores=10)
 
 
 def check_semantic_context(datasets_df, resources_df, n_cores=20):
-    resources_urls = [(v, eval(v[1])) for v in datasets_df.resources.items()]
+    resources_urls = [(v[0], eval(v[1])) for v in datasets_df.resources.items()]
     semantic_context_idx = []
     for idx, list_resources in resources_urls:
         for res in list_resources:
@@ -113,23 +113,23 @@ def check_semantic_context(datasets_df, resources_df, n_cores=20):
             res_url = res["url"]
             try:
                 r = requests.get(res_url, allow_redirects=True, timeout=5, stream=True)
-                if r.headers["Content-length"] > 50e6:
+                if int(r.headers["Content-length"]) > 50e6:
                     logger.info("Resource {0} with URL {1} too big to parse".format(res["_id"], res_url))
 
                 graph_str = r.content
-
-
                 g.parse(data=graph_str, format="xml")
             except Exception as e:  #
                 logger.info("Could not parse graph of resource {0} with URL {1}".format(res["_id"], res_url))
                 logger.error(e)
+                continue
             namespaces = list(g.namespaces())
-
             # check that the namespaces are URIs to other resources
             resource_refs_URIs = [ns for ns in namespaces if isinstance(ns[1], rdflib.term.URIRef)]
             if not len(resource_refs_URIs):
                 continue
+
             semantic_context_idx.append(idx)
+
     return pd.Series(semantic_context_idx)
 
 def check_semantic(datasets_df, resources_df, semantic_formats, n_cores=20):
