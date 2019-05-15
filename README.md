@@ -29,7 +29,7 @@ Among the existing licences in the datasets stored in dgf (see below) we check h
 
 >"make it available as structured data (e.g., Excel instead of image scan of a table)"
 
-From the available top 20 formats (these formats cover over 97% of the total number of **resources**, their frequency is the second value of each tuple):
+From the available top 20 formats (these formats cover around 97% of the total number of **resources**, their frequency is the second value of each tuple):
 
 ```python
 [('json', 41919), ('shp', 32149), ('csv', 27789), ('zip', 26069), ('pdf', 24123), ('xml', 11943), ('html', 10740),
