@@ -159,7 +159,7 @@ if __name__ == '__main__':
     n_cores = int(parser.num_cores)
     dataset_stars = parser.dataset
 
-    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:]
+    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:20]
     num_all_datasets = len(datasets_df)
 
     resources_df = pd.read_csv(resources_folder_path, sep=";")
@@ -181,8 +181,8 @@ if __name__ == '__main__':
         if not indices.empty:
             datasets_df.loc[indices, "num_stars"] = name
 
-    star_dataset = datasets_df[["_id", "num_stars"]]
-    star_dataset.to_csv(datasets_file_path, header=True, index=False)
+    star_dataset = datasets_df[["_id", "num_stars"]].copy()
+    star_dataset.to_csv(dataset_stars, header=True, index=False)
 
 
     logger.info("One star pct:", len(one_star_idx) / num_all_datasets, str(one_star_info))
