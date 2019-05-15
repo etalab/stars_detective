@@ -2,10 +2,10 @@
     (https://5stardata.info/en/)
 
    It requires two csv files as input: datasets.csv and resources.csv
-   It is recommended to use the resources_maybe_formats.csv file as it has solved some issues with the formats
-   of the resources, such as:
+   It is recommended to use the resources_maybe_formats.csv file as it has solved some improvements with the formats
+   of the resources:
    1. Tried to infer the resource format from the url for nan's and for "document" format types.
-   2. Tried to infer the resource format from the files within the zips ("zip" format)
+   2. Tried to infer the resource format from the files within the zips ("zip" format) (should work maybe!)
 
 
 Usage:
@@ -14,13 +14,13 @@ Usage:
 Arguments:
     <d>                                Datasets csv file path
     <r>                                Resources csv file path
+    --dataset DATASET            File path for a csv file containing the stars found for each dataset
     --num_cores CORES                  Num cores [default:10:int]
 
 '''
 from collections import Counter
 
 import pandas as pd
-import rdflib
 from argopt import argopt
 import datetime
 
@@ -157,6 +157,7 @@ if __name__ == '__main__':
     datasets_file_path = parser.d
     resources_folder_path = parser.r
     n_cores = int(parser.num_cores)
+    dataset_stars = parser.dataset
 
     datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:]
     num_all_datasets = len(datasets_df)
@@ -171,13 +172,21 @@ if __name__ == '__main__':
 
     four_stars_idx, four_star_info = four_stars(datasets_df.loc[three_stars_idx], resources_df, n_cores=n_cores)
 
-    # four_stars_idx = pd.read_csv("output_files/four_star_indices.csv", header=None)
-    # four_stars_idx.index = four_stars_idx[0].values
-
     five_stars_idx = five_stars(datasets_df.loc[four_stars_idx], resources_df, n_cores=n_cores)
 
-    print("One star pct:", len(one_star_idx) / num_all_datasets, str(one_star_info))
-    print("Two stars pct:", len(two_stars_idx) / num_all_datasets)
-    print("Three stars pct:", len(three_stars_idx) / num_all_datasets)
-    print("Four stars pct:", len(four_stars_idx) / num_all_datasets)
-    print("Five stars pct:", len(five_stars_idx) / num_all_datasets)
+    datasets_df["num_stars"] = datasets_df.loc[one_star_idx].apply(lambda x: "one", axis=1)
+    datasets_df["num_stars"] = datasets_df["num_stars"].fillna("zero")
+    #
+    for indices, name in [(two_stars_idx, "two"), (three_stars_idx, "three"), (four_stars_idx, "four"), (five_stars_idx, "five")]:
+        if not indices.empty:
+            datasets_df.loc[indices, "num_stars"] = name
+
+    star_dataset = datasets_df[["_id", "num_stars"]]
+    star_dataset.to_csv(datasets_file_path, header=True, index=False)
+
+
+    logger.info("One star pct:", len(one_star_idx) / num_all_datasets, str(one_star_info))
+    logger.info("Two stars pct:", len(two_stars_idx) / num_all_datasets)
+    logger.info("Three stars pct:", len(three_stars_idx) / num_all_datasets)
+    logger.info("Four stars pct:", len(four_stars_idx) / num_all_datasets)
+    logger.info("Five stars pct:", len(five_stars_idx) / num_all_datasets)

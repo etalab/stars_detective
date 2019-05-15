@@ -1,3 +1,4 @@
+import sys
 from collections import Counter
 
 import dask.dataframe as dd
@@ -104,18 +105,20 @@ def check_structured(datasets_df, resources_df, non_desired_formats, n_cores=10)
 
 
 def check_semantic_context(datasets_df, resources_df, n_cores=20):
-
-
     resources_urls = [(v, eval(v[1])) for v in datasets_df.resources.items()]
-
     semantic_context_idx = []
     for idx, list_resources in resources_urls:
         for res in list_resources:
             g = Graph()
             res_url = res["url"]
             try:
-                r = requests.get(res_url, allow_redirects=True, timeout=5)
+                r = requests.get(res_url, allow_redirects=True, timeout=5, stream=True)
+                if r.headers["Content-length"] > 50e6:
+                    logger.info("Resource {0} with URL {1} too big to parse".format(res["_id"], res_url))
+
                 graph_str = r.content
+
+
                 g.parse(data=graph_str, format="xml")
             except Exception as e:  #
                 logger.info("Could not parse graph of resource {0} with URL {1}".format(res["_id"], res_url))
@@ -137,7 +140,7 @@ def check_semantic(datasets_df, resources_df, semantic_formats, n_cores=20):
 
     res = datasets_dd.map_partitions(lambda df: df.apply(lambda x: check_format(x.resources, semantic_formats,
                                                                                 list_is_negative=False), axis=1),
-                                     meta=("result", bool)).compute(scheduler="multiprocessing")
+                                     meta=("result", bool)).compute(scheduler="processes")
     semantic_idx = res.index[res == True]
     return {"num_semantic": len(semantic_idx)}, semantic_idx
 
