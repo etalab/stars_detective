@@ -161,7 +161,7 @@ if __name__ == '__main__':
     n_cores = int(parser.num_cores)
     dataset_stars = parser.dataset
 
-    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:2000]
+    datasets_df = pd.read_csv(datasets_file_path, sep=";").loc[:]
     num_all_datasets = len(datasets_df)
 
     resources_df = pd.read_csv(resources_folder_path, sep=";")
