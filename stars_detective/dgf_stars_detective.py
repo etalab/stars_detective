@@ -149,7 +149,7 @@ def five_stars(datasets_df, resources_df, n_cores=20):
     :param n_cores
     :return:
     """
-    five_stars_idx = check_semantic_context(datasets_df, resources_df, n_cores=n_cores)
+    five_stars_idx = check_semantic_context(datasets_df)
     five_stars_idx.index = five_stars_idx
 
     return five_stars_idx.index
