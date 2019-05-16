@@ -176,12 +176,11 @@ if __name__ == '__main__':
 
     five_stars_idx = five_stars(datasets_df.loc[four_stars_idx], resources_df, n_cores=n_cores)
 
-    datasets_df["num_stars"] = datasets_df.loc[one_star_idx].apply(lambda x: "one", axis=1)
-    datasets_df["num_stars"] = datasets_df["num_stars"].fillna("zero")
-    #
-    for indices, name in [(two_stars_idx, "two"), (three_stars_idx, "three"), (four_stars_idx, "four"), (five_stars_idx, "five")]:
+    datasets_df["num_stars"] = datasets_df.loc[one_star_idx].apply(lambda x: 1, axis=1)
+
+    for indices, stars in [(two_stars_idx, 2), (three_stars_idx, 3), (four_stars_idx, 4), (five_stars_idx, 5)]:
         if not indices.empty:
-            datasets_df.loc[indices, "num_stars"] = name
+            datasets_df.loc[indices, "num_stars"] = stars
 
     star_dataset = datasets_df[["_id", "num_stars"]].copy()
     star_dataset.to_csv(dataset_stars, header=True, index=False)
