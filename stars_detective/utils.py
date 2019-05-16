@@ -159,7 +159,7 @@ def check_url_works(resources_series: pd.Series):
                     return True
                 else:
                     logger.info("Dataset {0} already checked as not available".format(resource["_id"]))
-                    return False
+                    continue
 
         if "url" not in resource:
             continue
