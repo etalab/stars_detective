@@ -1,5 +1,6 @@
 # stars_detective
-Script to determine the proportion of datasets that comply with the [Tim Berners Lee 5-stars](https://5stardata.info/en/) system in the open data portal *data.gouv.fr* (dgf).
+Script to determine the proportion of datasets that comply with the [Tim Berners Lee 5-stars](https://5stardata.info/en/) system in the open data portal *data.gouv.fr* (dgf). In `output_files/` you can find a csv file containing the `dataset_id` and the number of stars for each dataset.
+
 
 # How it is done ?
 We have two files where we the details of datasets and their corresponding resources are stored (`datasets.csv` and `resources.csv`, respectively). There are **39013** datasets in total. There are **199818** resources. A dataset can have more than one resource.
@@ -73,7 +74,6 @@ This one is harder because of the multiple types of semantic docs there are.
 | Five stars pct:  | 0.00012  |
 
 Luckily, we only need to give a broad range, so for the first three levels, we are 71-80%. For the last two, we are 0-9%.
-
 
 
 
