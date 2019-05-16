@@ -104,7 +104,7 @@ def check_structured(datasets_df, resources_df, non_desired_formats, n_cores=10)
     return {"num_structured": len(structured_idx)}, structured_idx
 
 
-def check_semantic_context(datasets_df, resources_df, n_cores=20):
+def check_semantic_context(datasets_df):
     resources_urls = [(v[0], eval(v[1])) for v in datasets_df.resources.items()]
     semantic_context_idx = []
     for idx, list_resources in resources_urls:
@@ -113,8 +113,10 @@ def check_semantic_context(datasets_df, resources_df, n_cores=20):
             res_url = res["url"]
             try:
                 r = requests.get(res_url, allow_redirects=True, timeout=5, stream=True)
-                if int(r.headers["Content-length"]) > 50e6:
+                content_length = [k for k in r.headers.keys() if k.lower() == "content-length"]
+                if len(content_length) and int(r.headers[content_length[0]]) > 50e6:
                     logger.info("Resource {0} with URL {1} too big to parse".format(res["_id"], res_url))
+                    continue
 
                 graph_str = r.content
                 g.parse(data=graph_str, format="xml")
@@ -131,6 +133,7 @@ def check_semantic_context(datasets_df, resources_df, n_cores=20):
             semantic_context_idx.append(idx)
 
     return pd.Series(semantic_context_idx)
+
 
 def check_semantic(datasets_df, resources_df, semantic_formats, n_cores=20):
     global RESOURCES_DF
