@@ -96,7 +96,7 @@ def three_stars(datasets_df, resources_df, n_cores=20):
     ('xls', 5580), ('image', 3437), ('ods', 2007), ('xlsx', 1713), ('.asc, .las, .glz', 1048), ('geojson', 787),
     ('kml', 764), ('bin', 760), ('kmz', 543), ('txt', 498), ('doc', 456), ('api', 391), ('dbf', 352)]
 
-    xls, dbf are not structured (machine-readable, copy paste info from one app to another)
+    xls, dbf are not open formats
 
     :param datasets_df:
     :param resources_csv:
@@ -119,7 +119,7 @@ def four_stars(datasets_df, resources_df, n_cores=20):
     "use URIs to denote things, so that people can point at your stuff"
 
     Considering the formats ttl, owx, owl, and rdf default 'semantic stuff'
-    We need to check if the xml's, json's, and maybe the html's contain rdf stuff ??
+    TODO: We need to check if the xml's, json's, and maybe the html's contain rdf stuff ??
 
     :param datasets_df:
     :param resources_csv:
@@ -142,7 +142,7 @@ def five_stars(datasets_df, resources_df, n_cores=20):
 
     "use URIs to denote things, so that people can point at your stuff"
 
-    We check the namespaces of the semantic files (see four_stars) and determine if they link or not to other things
+    We check the namespaces of the semantic files (see four_stars) and determine if they have links or not to other things
 
     :param datasets_df:
     :param resources_csv:
