@@ -73,8 +73,8 @@ This one is harder because of the multiple types of semantic docs there are.
 | Four stars pct:  | 0.00033  |
 | Five stars pct:  | 0.00012  |
 
-Luckily, we only need to give a broad range, so for the first three levels, we are 71-80%. For the last two, we are 0-9%.
-
+Luckily, we only need to give a broad range, so for the first three levels, we are 71-80%. For the last two, we are 0-9% ¯\_(ツ)_/¯.
+ 
 
 
 
